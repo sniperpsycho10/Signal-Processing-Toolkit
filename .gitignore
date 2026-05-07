@@ -1,0 +1,41 @@
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+env/
+myenv/
+.venv/
+
+# VS Code settings
+.vscode/
+
+# Jupyter notebook checkpoints
+.ipynb_checkpoints/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Generated datasets/audio/temp files
+datasets/temp/
+datasets/output/
+
+# Logs
+*.log
+
+# Build files
+build/
+dist/
+
+# Environment variables
+.env
+
+# Matplotlib cache
+.matplotlib/
+
+# PyInstaller
+*.spec
