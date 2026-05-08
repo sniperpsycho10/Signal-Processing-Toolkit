@@ -47,3 +47,34 @@ def plot_frequency_spectrum(
     plt.tight_layout()
 
     plt.show()
+
+
+def compare_signals(
+        t,
+        original_signal,
+        filtered_signal,
+        original_title="Original Signal",
+        filtered_title="Filtered Signal"
+):
+
+    plt.figure(figsize=(12, 8))
+
+    plt.subplot(2, 1, 1)
+
+    plt.plot(t, original_signal)
+
+    plt.title(original_title)
+
+    plt.grid(True)
+
+    plt.subplot(2, 1, 2)
+
+    plt.plot(t, filtered_signal)
+
+    plt.title(filtered_title)
+
+    plt.grid(True)
+
+    plt.tight_layout()
+
+    plt.show()
