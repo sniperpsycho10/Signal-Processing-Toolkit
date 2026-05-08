@@ -1,5 +1,6 @@
 from signals.generator import (
     generate_multi_signal,
+    generate_chirp_signal,
     add_noise
 )
 
@@ -7,7 +8,8 @@ from visualization.plots import (
     plot_signal,
     plot_frequency_spectrum,
     compare_signals,
-    plot_spectrogram
+    plot_spectrogram,
+    plot_3d_spectrogram
 )
 
 from processing.fft_analysis import compute_fft
@@ -24,17 +26,21 @@ from processing.spectrogram import (
 
 
 # =====================================
-# USER INPUTS
+# SIGNAL TYPE SELECTION
 # =====================================
 
-frequency_input = input(
-    "Enter signal frequencies separated by commas (example: 50,120,300): "
+print("Select Signal Type")
+print("1. Multi-Frequency Signal")
+print("2. Chirp Signal")
+
+signal_choice = input(
+    "Enter choice (1/2): "
 )
 
-frequencies_list = [
-    float(freq.strip())
-    for freq in frequency_input.split(",")
-]
+
+# =====================================
+# COMMON INPUTS
+# =====================================
 
 amplitude = float(
     input("Enter signal amplitude: ")
@@ -54,44 +60,67 @@ noise_level = float(
 
 
 # =====================================
-# NYQUIST CHECK
-# =====================================
-
-max_frequency = max(frequencies_list)
-
-if sample_rate < 2 * max_frequency:
-
-    print("\nWARNING:")
-    print("Sample rate violates Nyquist criterion.")
-    print(
-        f"Recommended sample rate >= {2 * max_frequency} Hz"
-    )
-
-
-# =====================================
-# FILTER SELECTION
-# =====================================
-
-print("\nSelect Filter Type")
-print("1. Low-Pass Filter")
-print("2. High-Pass Filter")
-print("3. Band-Pass Filter")
-
-filter_choice = input(
-    "Enter choice (1/2/3): "
-)
-
-
-# =====================================
 # SIGNAL GENERATION
 # =====================================
 
-t, signal = generate_multi_signal(
-    frequencies=frequencies_list,
-    amplitude=amplitude,
-    duration=duration,
-    sample_rate=sample_rate
-)
+if signal_choice == "1":
+
+    frequency_input = input(
+        "Enter frequencies separated by commas: "
+    )
+
+    frequencies_list = [
+        float(freq.strip())
+        for freq in frequency_input.split(",")
+    ]
+
+    max_frequency = max(frequencies_list)
+
+    if sample_rate < 2 * max_frequency:
+
+        print("\nWARNING:")
+        print("Sample rate violates Nyquist criterion.")
+
+    t, signal = generate_multi_signal(
+        frequencies=frequencies_list,
+        amplitude=amplitude,
+        duration=duration,
+        sample_rate=sample_rate
+    )
+
+
+elif signal_choice == "2":
+
+    start_frequency = float(
+        input("Enter chirp start frequency: ")
+    )
+
+    end_frequency = float(
+        input("Enter chirp end frequency: ")
+    )
+
+    max_frequency = max(
+        start_frequency,
+        end_frequency
+    )
+
+    if sample_rate < 2 * max_frequency:
+
+        print("\nWARNING:")
+        print("Sample rate violates Nyquist criterion.")
+
+    t, signal = generate_chirp_signal(
+        start_frequency=start_frequency,
+        end_frequency=end_frequency,
+        amplitude=amplitude,
+        duration=duration,
+        sample_rate=sample_rate
+    )
+
+else:
+
+    print("Invalid signal choice")
+    exit()
 
 
 # =====================================
@@ -105,29 +134,16 @@ noisy_signal = add_noise(
 
 
 # =====================================
-# TIME-DOMAIN VISUALIZATION
+# FILTER SELECTION
 # =====================================
 
-plot_signal(
-    t,
-    noisy_signal,
-    title="Noisy Signal"
-)
+print("\nSelect Filter Type")
+print("1. Low-Pass Filter")
+print("2. High-Pass Filter")
+print("3. Band-Pass Filter")
 
-
-# =====================================
-# FFT BEFORE FILTERING
-# =====================================
-
-frequencies, magnitude = compute_fft(
-    noisy_signal,
-    sample_rate
-)
-
-plot_frequency_spectrum(
-    frequencies,
-    magnitude,
-    title="FFT Before Filtering"
+filter_choice = input(
+    "Enter choice (1/2/3): "
 )
 
 
@@ -184,7 +200,6 @@ elif filter_choice == "3":
 
     filter_title = "Band-Pass Filtered Signal"
 
-
 else:
 
     print("Invalid filter choice")
@@ -192,8 +207,14 @@ else:
 
 
 # =====================================
-# SIGNAL COMPARISON
+# VISUALIZATION
 # =====================================
+
+plot_signal(
+    t,
+    noisy_signal,
+    title="Noisy Signal"
+)
 
 compare_signals(
     t,
@@ -205,23 +226,23 @@ compare_signals(
 
 
 # =====================================
-# FFT AFTER FILTERING
+# FFT ANALYSIS
 # =====================================
 
-filtered_frequencies, filtered_magnitude = compute_fft(
+frequencies, magnitude = compute_fft(
     filtered_signal,
     sample_rate
 )
 
 plot_frequency_spectrum(
-    filtered_frequencies,
-    filtered_magnitude,
+    frequencies,
+    magnitude,
     title="FFT After Filtering"
 )
 
 
 # =====================================
-# SPECTROGRAM GENERATION
+# SPECTROGRAM
 # =====================================
 
 spectrogram_frequencies, spectrogram_times, spectrogram_data = compute_spectrogram(
@@ -229,14 +250,16 @@ spectrogram_frequencies, spectrogram_times, spectrogram_data = compute_spectrogr
     sample_rate
 )
 
-
-# =====================================
-# SPECTROGRAM VISUALIZATION
-# =====================================
-
 plot_spectrogram(
     spectrogram_frequencies,
     spectrogram_times,
     spectrogram_data,
-    title="Signal Spectrogram"
+    title="2D Spectrogram"
+)
+
+plot_3d_spectrogram(
+    spectrogram_frequencies,
+    spectrogram_times,
+    spectrogram_data,
+    title="3D Spectrogram"
 )

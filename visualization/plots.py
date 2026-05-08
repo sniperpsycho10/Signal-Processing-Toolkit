@@ -1,5 +1,9 @@
 import matplotlib.pyplot as plt
 
+from mpl_toolkits.mplot3d import Axes3D
+
+import numpy as np
+
 
 def plot_signal(
         t,
@@ -93,7 +97,8 @@ def plot_spectrogram(
         times,
         frequencies,
         spectrogram_data,
-        shading='gouraud'
+        shading='gouraud',
+        cmap='inferno'
     )
 
     plt.title(title)
@@ -103,6 +108,39 @@ def plot_spectrogram(
     plt.xlabel('Time (s)')
 
     plt.colorbar(label='Intensity')
+
+    plt.tight_layout()
+
+    plt.show()
+
+
+def plot_3d_spectrogram(
+        frequencies,
+        times,
+        spectrogram_data,
+        title="3D Spectrogram"
+):
+
+    fig = plt.figure(figsize=(12, 8))
+
+    ax = fig.add_subplot(111, projection='3d')
+
+    T, F = np.meshgrid(times, frequencies)
+
+    ax.plot_surface(
+        T,
+        F,
+        spectrogram_data,
+        cmap='plasma'
+    )
+
+    ax.set_title(title)
+
+    ax.set_xlabel('Time (s)')
+
+    ax.set_ylabel('Frequency (Hz)')
+
+    ax.set_zlabel('Intensity')
 
     plt.tight_layout()
 
