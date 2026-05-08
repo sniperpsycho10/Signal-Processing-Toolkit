@@ -1,143 +1,135 @@
-# 🚀 Phase 3 — Signal Filtering System
+# 🚀 Phase 4 — Spectrogram & Time-Frequency Analysis
 
-This phase introduces one of the most important concepts in Digital Signal Processing (DSP):
+This phase introduces advanced DSP visualization techniques using:
 
-# Signal Filtering & Noise Removal
+# Spectrograms, STFT, and Chirp Signal Analysis
 
-The toolkit can now isolate desired frequencies, remove unwanted noise, and reconstruct filtered signals using inverse FFT.
+The toolkit can now visualize how signal frequencies evolve over time using 2D and 3D spectrograms.
+
+This phase significantly upgrades the project visually and conceptually.
 
 ---
 
 # ✅ Features Implemented
 
-- Low-pass filtering
-- High-pass filtering
-- Band-pass filtering
-- Signal reconstruction using inverse FFT
-- Multi-frequency signal generation
-- Frequency isolation
-- Noise reduction
-- FFT before/after filtering visualization
-- Dynamic user-configurable DSP inputs
-- Nyquist sampling validation warning
+- Spectrogram generation
+- Short-Time Fourier Transform (STFT)
+- 2D spectrogram heatmaps
+- 3D spectrogram visualization
+- Chirp signal generation
+- Dynamic frequency sweep analysis
+- Time-frequency signal analysis
+- Enhanced spectrogram colormaps
+- Multi-frequency signal visualization
+- Interactive DSP visualization foundation
 
 ---
 
 # 🧠 DSP Concepts Covered
 
-## 1. Signal Filtering
+## 1. Spectrograms
 
-Filtering removes unwanted frequency components from a signal.
+A spectrogram visualizes:
 
-This allows:
-- noise reduction
-- signal isolation
-- communication channel separation
+| Axis | Meaning |
+|---|---|
+| X-axis | Time |
+| Y-axis | Frequency |
+| Color | Signal Intensity |
 
----
-
-## 2. Low-Pass Filter
-
-Allows:
-- low frequencies
-
-Removes:
-- high frequencies
-
-### Example Uses
-- audio smoothing
-- noise reduction
-- sensor filtering
+Unlike standard FFT, spectrograms show:
+- what frequencies exist
+- when they occur
 
 ---
 
-## 3. High-Pass Filter
+## 2. Short-Time Fourier Transform (STFT)
 
-Allows:
-- high frequencies
+A spectrogram is generated using:
 
-Removes:
-- low frequencies
+# Short-Time Fourier Transform
 
-### Example Uses
-- edge detection
-- drift removal
-- rapid signal analysis
+STFT performs:
+- multiple small FFT operations
+- across short signal windows
+
+This allows time-frequency analysis.
 
 ---
 
-## 4. Band-Pass Filter
+## 3. Time-Frequency Analysis
 
-Allows:
-- only a selected frequency range
+Phase 2 FFT answered:
 
-Removes:
-- everything outside the band
+```text
+“What frequencies exist?”
+```
 
-### Example Uses
-- radio tuning
+Phase 4 answers:
+
+```text
+“When do frequencies occur?”
+```
+
+This is one of the most important DSP concepts.
+
+---
+
+## 4. Chirp Signals
+
+Implemented dynamic frequency sweep signals.
+
+Example:
+
+```text
+50 Hz → 1000 Hz
+```
+
+over time.
+
+Chirp signals are heavily used in:
+- radar systems
+- sonar systems
 - communication systems
-- speech isolation
 
 ---
 
-## 5. Frequency Masking
+## 5. Spectrogram Heatmaps
 
-Filtering is performed by creating boolean frequency masks.
-
-Example:
+Implemented 2D spectrogram visualization using:
 
 ```python
-frequencies <= cutoff
+plt.pcolormesh()
 ```
 
-This selects frequencies to preserve.
+This displays:
+- frequency intensity
+- over time
+
+using color-based heatmaps.
 
 ---
 
-## 6. Inverse FFT
+## 6. 3D Spectrogram Visualization
 
-FFT converts:
+Implemented advanced 3D spectrogram rendering.
 
-```text
-Time Domain → Frequency Domain
-```
+Axes:
+- Time
+- Frequency
+- Intensity
 
-Inverse FFT reconstructs the filtered signal:
-
-```text
-Frequency Domain → Time Domain
-```
-
-Used function:
-
-```python
-np.fft.ifft()
-```
+This creates visually rich DSP analysis surfaces.
 
 ---
 
-## 7. Multi-Frequency Signal Composition
+## 7. Spectrogram Colormaps
 
-The toolkit now supports multiple signal frequencies simultaneously.
+Enhanced visualization using professional colormaps such as:
+- inferno
+- plasma
 
-Example:
-
-```text
-50 Hz + 120 Hz + 300 Hz
-```
-
-This allows realistic FFT and filtering demonstrations.
-
----
-
-## 8. Nyquist Sampling Criterion
-
-The project now validates sampling rate correctness using:
-
-fs ≥ 2fmax
-
-This prevents aliasing and incorrect FFT behavior.
+This improves readability and visual quality.
 
 ---
 
@@ -148,7 +140,8 @@ signal_processing_toolkit/
 │
 ├── processing/
 │   ├── fft_analysis.py
-│   └── filters.py
+│   ├── filters.py
+│   └── spectrogram.py
 │
 ├── signals/
 │   └── generator.py
@@ -164,51 +157,62 @@ signal_processing_toolkit/
 
 # 📦 New Functionalities
 
-## Multi-Frequency Signal Generator
+## Chirp Signal Generator
 
 Implemented:
 
 ```python
-generate_multi_signal()
+generate_chirp_signal()
 ```
 
-This dynamically combines multiple sine waves into a single signal.
+Supports:
+- linear frequency sweeps
+- dynamic signal analysis
 
 ---
 
-## Low-Pass Filter
+## Spectrogram Engine
 
 Implemented:
 
 ```python
-low_pass_filter()
+compute_spectrogram()
 ```
 
-Keeps frequencies below selected cutoff.
+Uses:
+```python
+scipy.signal.spectrogram()
+```
+
+to compute STFT-based spectrograms.
 
 ---
 
-## High-Pass Filter
+## 2D Spectrogram Visualization
 
 Implemented:
 
 ```python
-high_pass_filter()
+plot_spectrogram()
 ```
 
-Keeps frequencies above selected cutoff.
+Displays:
+- time-frequency heatmaps
+- intensity distribution
 
 ---
 
-## Band-Pass Filter
+## 3D Spectrogram Visualization
 
 Implemented:
 
 ```python
-band_pass_filter()
+plot_3d_spectrogram()
 ```
 
-Keeps only frequencies inside selected frequency range.
+Displays:
+- 3D DSP intensity surfaces
+- advanced signal analysis visualization
 
 ---
 
@@ -217,71 +221,87 @@ Keeps only frequencies inside selected frequency range.
 The toolkit now visualizes:
 
 ## 1. Noisy Signal
-Time-domain noisy waveform.
+Time-domain waveform.
 
-## 2. FFT Before Filtering
-Original frequency spectrum.
-
-## 3. Filtered Signal
+## 2. Filtered Signal
 Reconstructed filtered waveform.
 
-## 4. FFT After Filtering
-Filtered frequency spectrum.
+## 3. FFT Spectrum
+Frequency-domain analysis.
+
+## 4. 2D Spectrogram
+Time-frequency heatmap visualization.
+
+## 5. 3D Spectrogram
+3D intensity surface visualization.
 
 ---
 
 # 🔬 Example Workflow
 
 ```text
-Generate Multi-Frequency Signal
+Generate Chirp Signal
             ↓
 Add Noise
             ↓
-Apply FFT
+Apply Filtering
             ↓
-Apply Frequency Filter
+Perform STFT
             ↓
-Remove Unwanted Frequencies
+Generate Spectrogram
             ↓
-Apply Inverse FFT
+Visualize 2D Heatmap
             ↓
-Reconstruct Signal
-            ↓
-Visualize Filtered Spectrum
+Visualize 3D Spectrogram
 ```
 
 ---
 
 # 🧠 Key Learnings
 
-After Phase 3, the project can now:
+After Phase 4, the project can now:
 
-✅ Isolate signal frequencies  
-✅ Remove unwanted noise  
-✅ Apply low-pass filtering  
-✅ Apply high-pass filtering  
-✅ Apply band-pass filtering  
-✅ Reconstruct filtered signals  
-✅ Analyze multi-frequency systems  
-✅ Validate Nyquist sampling conditions  
+✅ Perform time-frequency analysis  
+✅ Generate spectrogram heatmaps  
+✅ Analyze dynamic frequency sweeps  
+✅ Visualize chirp signals  
+✅ Generate 3D DSP visualizations  
+✅ Perform STFT-based analysis  
+✅ Analyze frequency evolution over time  
 
 ---
 
 # 🏢 Real-World Applications
 
-Filtering systems are heavily used in:
+Spectrogram systems are heavily used in:
 
-- Audio Processing
-- Wireless Communication
-- RF Signal Isolation
+- Speech Recognition
+- Audio Engineering
 - Radar Systems
-- Biomedical Signal Processing
-- Embedded Systems
-- Speech Enhancement
-- Spectrum Analysis
+- Sonar Systems
+- RF Communication
+- Biomedical Signal Analysis
+- Music Production
+- AI Audio Processing
+
+---
+
+# 🚀 Advanced DSP Capabilities Achieved
+
+The toolkit now supports:
+
+✅ Signal Generation  
+✅ Multi-Frequency Signals  
+✅ FFT Analysis  
+✅ Signal Filtering  
+✅ Noise Reduction  
+✅ Spectrogram Visualization  
+✅ Chirp Signal Analysis  
+✅ Time-Frequency DSP Analysis  
+✅ 3D DSP Visualization  
 
 ---
 
 # 🎯 Status
 
-✅ Phase 3 Completed
+✅ Phase 4 Completed
