@@ -1,197 +1,212 @@
-# 📡 Signal Processing Toolkit
+# 🚀 Phase 2 — FFT & Frequency Analysis
 
-A modular Python-based Digital Signal Processing (DSP) toolkit for signal generation, visualization, filtering, FFT analysis, spectrograms, and real-time audio processing.
+This phase introduces the core concept of Digital Signal Processing (DSP):
 
----
+# Converting signals from the Time Domain to the Frequency Domain
 
-# 🚀 Project Goal
-
-This project aims to simulate a real-world DSP workstation capable of:
-
-- Generating signals
-- Visualizing waveforms
-- Performing FFT analysis
-- Filtering noise
-- Processing real audio
-- Displaying spectrograms
-- Supporting real-time microphone input
-- Building a professional DSP dashboard GUI
+Using Fast Fourier Transform (FFT), the project can now analyze what frequencies exist inside a signal.
 
 ---
 
-# ✅ Current Phase
+# ✅ Features Implemented
 
-## Phase 1 — Signal Generation & Visualization
-
-Completed features:
-
-- Time axis generation
-- Sine wave generation
-- Noise simulation
-- Time-domain plotting
-- Modular project structure
+- FFT computation using NumPy
+- Frequency spectrum generation
+- Magnitude spectrum analysis
+- Frequency-domain visualization
+- Dominant frequency detection
+- Noisy signal frequency analysis
 
 ---
 
 # 🧠 DSP Concepts Covered
 
-## 1. Signals
+## 1. Frequency Domain
 
-A signal represents information changing over time.
-
-Examples:
-- Audio signals
-- Sensor signals
-- Wireless communication signals
-- ECG signals
-
----
-
-## 2. Time Domain
-
-Signals are currently visualized in the time domain:
+In Phase 1, signals were visualized in the time domain:
 
 - X-axis → Time
 - Y-axis → Amplitude
 
----
+Phase 2 introduces the frequency domain:
 
-## 3. Sine Waves
+- X-axis → Frequency
+- Y-axis → Magnitude
 
-Core signal equation:
-
-x(t) = A sin(2πft)
-
-Where:
-- A = amplitude
-- f = frequency
-- t = time
+This allows analysis of the frequencies present inside a signal.
 
 ---
 
-## 4. Noise
+## 2. Fourier Transform
 
-Random noise is added to simulate real-world signal disturbances such as:
-- microphone interference
-- electrical noise
-- communication noise
+Core mathematical idea:
+
+X(f) = ∫ x(t)e^(-j2πft) dt
+
+The Fourier Transform decomposes a signal into its frequency components.
 
 ---
 
-# 📂 Project Structure
+## 3. Fast Fourier Transform (FFT)
+
+FFT is a computationally efficient implementation of the Fourier Transform.
+
+Used function:
+
+```python
+np.fft.fft()
+```
+
+FFT converts:
+
+```text
+Time Domain → Frequency Domain
+```
+
+---
+
+## 4. Frequency Spectrum
+
+The frequency spectrum visualizes:
+- which frequencies exist
+- how strong each frequency is
+
+Example:
+- A 50 Hz sine wave produces a strong peak near 50 Hz.
+
+---
+
+## 5. Magnitude Spectrum
+
+FFT outputs complex numbers:
+
+```text
+a + bj
+```
+
+To visualize signal strength, the magnitude is computed using:
+
+```python
+np.abs(fft_result)
+```
+
+---
+
+## 6. Frequency Axis Generation
+
+FFT output bins are mapped to real frequencies using:
+
+```python
+np.fft.fftfreq()
+```
+
+This generates accurate frequency labels for visualization.
+
+---
+
+# 📂 Files Added / Updated
 
 ```text
 signal_processing_toolkit/
 │
-├── signals/
-│   └── generator.py
+├── processing/
+│   └── fft_analysis.py
 │
 ├── visualization/
 │   └── plots.py
 │
 ├── main.py
-├── requirements.txt
-├── .gitignore
 └── README.md
 ```
 
 ---
 
-# 📦 Libraries Used
+# 📦 New Functionalities
 
-| Library | Purpose |
-|---|---|
-| NumPy | Signal generation & math |
-| Matplotlib | Visualization |
-| SciPy | DSP utilities |
+## FFT Analysis Engine
+
+Implemented reusable FFT computation module:
+
+```python
+compute_fft(signal, sample_rate)
+```
+
+Responsibilities:
+- compute FFT
+- generate frequency axis
+- compute magnitude spectrum
 
 ---
 
-# ▶️ How to Run
+## Frequency Spectrum Plotting
 
-## 1. Clone repository
+Added visualization for:
+- frequency vs magnitude
 
-```bash
-git clone https://github.com/sniperpsycho10/Signal-Processing-Toolkit.git
-```
-
-## 2. Enter project directory
-
-```bash
-cd Signal-Processing-Toolkit
-```
-
-## 3. Install dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-## 4. Run project
-
-```bash
-python main.py
-```
+This acts as a basic spectrum analyzer.
 
 ---
 
 # 📊 Current Output
 
-The application currently generates:
+The system now generates:
 
-- Clean sine wave
-- Noisy sine wave
+## 1. Time-Domain Plot
+Displays noisy waveform over time.
 
-and visualizes them using time-domain plots.
+## 2. Frequency Spectrum Plot
+Displays dominant frequencies inside the signal.
 
----
-
-# 🚀 Future Roadmap
-
-## ✅ Phase 2
-FFT & Frequency Analysis
-
-## ✅ Phase 3
-Signal Filtering System
-
-## ✅ Phase 4
-Spectrogram Visualization
-
-## ✅ Phase 5
-Audio File Processing
-
-## ✅ Phase 6
-Real-Time Microphone DSP
-
-## ✅ Phase 7
-Professional GUI Dashboard
+Observed:
+- strong peak at signal frequency
+- additional noise components across spectrum
 
 ---
 
-# 🎯 Long-Term Vision
+# 🔬 Example Workflow
 
-Final application goals:
+```text
+Generate Signal
+        ↓
+Add Noise
+        ↓
+Apply FFT
+        ↓
+Extract Frequencies
+        ↓
+Generate Magnitude Spectrum
+        ↓
+Plot Frequency Spectrum
+```
 
-- Real-time DSP workstation
-- Interactive GUI dashboard
-- Audio filtering & denoising
-- Real-time FFT analysis
-- Spectrogram visualization
-- Communication signal analysis
+---
+
+# 🧠 Key Learnings
+
+After Phase 2, the project can now:
+
+✅ Analyze signal frequencies  
+✅ Detect dominant frequency peaks  
+✅ Visualize frequency spectra  
+✅ Understand noisy signal composition  
+✅ Perform core DSP frequency analysis  
 
 ---
 
 # 🏢 Real-World Applications
 
+FFT is widely used in:
+
 - Audio Processing
 - Wireless Communication
-- Embedded Systems
-- Biomedical Signal Processing
-- Radar & RF Systems
+- Radar Systems
+- RF Signal Analysis
+- Biomedical Signal Analysis
 - Speech Processing
+- Spectrum Analyzers
 
 ---
 
-# 📌 Status
+# 🎯 Status
 
-✅ Phase 1 Completed
+✅ Phase 2 Completed

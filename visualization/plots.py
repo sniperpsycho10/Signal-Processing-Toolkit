@@ -24,3 +24,26 @@ def plot_signal(
     plt.tight_layout()
 
     plt.show()
+
+
+def plot_frequency_spectrum(
+        frequencies,
+        magnitude,
+        title="Frequency Spectrum"
+):
+
+    plt.figure(figsize=(12, 5))
+
+    plt.plot(frequencies, magnitude)
+
+    plt.title(title)
+
+    plt.xlabel("Frequency (Hz)")
+
+    plt.ylabel("Magnitude")
+
+    plt.grid(True)
+
+    plt.tight_layout()
+
+    plt.show()
