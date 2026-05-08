@@ -78,3 +78,32 @@ def compare_signals(
     plt.tight_layout()
 
     plt.show()
+
+
+def plot_spectrogram(
+        frequencies,
+        times,
+        spectrogram_data,
+        title="Spectrogram"
+):
+
+    plt.figure(figsize=(12, 6))
+
+    plt.pcolormesh(
+        times,
+        frequencies,
+        spectrogram_data,
+        shading='gouraud'
+    )
+
+    plt.title(title)
+
+    plt.ylabel('Frequency (Hz)')
+
+    plt.xlabel('Time (s)')
+
+    plt.colorbar(label='Intensity')
+
+    plt.tight_layout()
+
+    plt.show()

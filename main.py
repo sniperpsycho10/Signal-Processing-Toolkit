@@ -6,7 +6,8 @@ from signals.generator import (
 from visualization.plots import (
     plot_signal,
     plot_frequency_spectrum,
-    compare_signals
+    compare_signals,
+    plot_spectrogram
 )
 
 from processing.fft_analysis import compute_fft
@@ -15,6 +16,10 @@ from processing.filters import (
     low_pass_filter,
     high_pass_filter,
     band_pass_filter
+)
+
+from processing.spectrogram import (
+    compute_spectrogram
 )
 
 
@@ -212,4 +217,26 @@ plot_frequency_spectrum(
     filtered_frequencies,
     filtered_magnitude,
     title="FFT After Filtering"
+)
+
+
+# =====================================
+# SPECTROGRAM GENERATION
+# =====================================
+
+spectrogram_frequencies, spectrogram_times, spectrogram_data = compute_spectrogram(
+    filtered_signal,
+    sample_rate
+)
+
+
+# =====================================
+# SPECTROGRAM VISUALIZATION
+# =====================================
+
+plot_spectrogram(
+    spectrogram_frequencies,
+    spectrogram_times,
+    spectrogram_data,
+    title="Signal Spectrogram"
 )
