@@ -1,61 +1,101 @@
-# 🚀 Phase 2 — FFT & Frequency Analysis
+# 🚀 Phase 3 — Signal Filtering System
 
-This phase introduces the core concept of Digital Signal Processing (DSP):
+This phase introduces one of the most important concepts in Digital Signal Processing (DSP):
 
-# Converting signals from the Time Domain to the Frequency Domain
+# Signal Filtering & Noise Removal
 
-Using Fast Fourier Transform (FFT), the project can now analyze what frequencies exist inside a signal.
+The toolkit can now isolate desired frequencies, remove unwanted noise, and reconstruct filtered signals using inverse FFT.
 
 ---
 
 # ✅ Features Implemented
 
-- FFT computation using NumPy
-- Frequency spectrum generation
-- Magnitude spectrum analysis
-- Frequency-domain visualization
-- Dominant frequency detection
-- Noisy signal frequency analysis
+- Low-pass filtering
+- High-pass filtering
+- Band-pass filtering
+- Signal reconstruction using inverse FFT
+- Multi-frequency signal generation
+- Frequency isolation
+- Noise reduction
+- FFT before/after filtering visualization
+- Dynamic user-configurable DSP inputs
+- Nyquist sampling validation warning
 
 ---
 
 # 🧠 DSP Concepts Covered
 
-## 1. Frequency Domain
+## 1. Signal Filtering
 
-In Phase 1, signals were visualized in the time domain:
+Filtering removes unwanted frequency components from a signal.
 
-- X-axis → Time
-- Y-axis → Amplitude
-
-Phase 2 introduces the frequency domain:
-
-- X-axis → Frequency
-- Y-axis → Magnitude
-
-This allows analysis of the frequencies present inside a signal.
+This allows:
+- noise reduction
+- signal isolation
+- communication channel separation
 
 ---
 
-## 2. Fourier Transform
+## 2. Low-Pass Filter
 
-Core mathematical idea:
+Allows:
+- low frequencies
 
-X(f) = ∫ x(t)e^(-j2πft) dt
+Removes:
+- high frequencies
 
-The Fourier Transform decomposes a signal into its frequency components.
+### Example Uses
+- audio smoothing
+- noise reduction
+- sensor filtering
 
 ---
 
-## 3. Fast Fourier Transform (FFT)
+## 3. High-Pass Filter
 
-FFT is a computationally efficient implementation of the Fourier Transform.
+Allows:
+- high frequencies
 
-Used function:
+Removes:
+- low frequencies
+
+### Example Uses
+- edge detection
+- drift removal
+- rapid signal analysis
+
+---
+
+## 4. Band-Pass Filter
+
+Allows:
+- only a selected frequency range
+
+Removes:
+- everything outside the band
+
+### Example Uses
+- radio tuning
+- communication systems
+- speech isolation
+
+---
+
+## 5. Frequency Masking
+
+Filtering is performed by creating boolean frequency masks.
+
+Example:
 
 ```python
-np.fft.fft()
+frequencies <= cutoff
 ```
+
+This selects frequencies to preserve.
+
+---
+
+## 6. Inverse FFT
 
 FFT converts:
 
@@ -63,44 +103,41 @@ FFT converts:
 Time Domain → Frequency Domain
 ```
 
----
-
-## 4. Frequency Spectrum
-
-The frequency spectrum visualizes:
-- which frequencies exist
-- how strong each frequency is
-
-Example:
-- A 50 Hz sine wave produces a strong peak near 50 Hz.
-
----
-
-## 5. Magnitude Spectrum
-
-FFT outputs complex numbers:
+Inverse FFT reconstructs the filtered signal:
 
 ```text
-a + bj
+Frequency Domain → Time Domain
 ```
 
-To visualize signal strength, the magnitude is computed using:
+Used function:
 
 ```python
-np.abs(fft_result)
+np.fft.ifft()
 ```
 
 ---
 
-## 6. Frequency Axis Generation
+## 7. Multi-Frequency Signal Composition
 
-FFT output bins are mapped to real frequencies using:
+The toolkit now supports multiple signal frequencies simultaneously.
 
-```python
-np.fft.fftfreq()
+Example:
+
+```text
+50 Hz + 120 Hz + 300 Hz
 ```
 
-This generates accurate frequency labels for visualization.
+This allows realistic FFT and filtering demonstrations.
+
+---
+
+## 8. Nyquist Sampling Criterion
+
+The project now validates sampling rate correctness using:
+
+fs ≥ 2fmax
+
+This prevents aliasing and incorrect FFT behavior.
 
 ---
 
@@ -110,7 +147,11 @@ This generates accurate frequency labels for visualization.
 signal_processing_toolkit/
 │
 ├── processing/
-│   └── fft_analysis.py
+│   ├── fft_analysis.py
+│   └── filters.py
+│
+├── signals/
+│   └── generator.py
 │
 ├── visualization/
 │   └── plots.py
@@ -123,90 +164,124 @@ signal_processing_toolkit/
 
 # 📦 New Functionalities
 
-## FFT Analysis Engine
+## Multi-Frequency Signal Generator
 
-Implemented reusable FFT computation module:
+Implemented:
 
 ```python
-compute_fft(signal, sample_rate)
+generate_multi_signal()
 ```
 
-Responsibilities:
-- compute FFT
-- generate frequency axis
-- compute magnitude spectrum
+This dynamically combines multiple sine waves into a single signal.
 
 ---
 
-## Frequency Spectrum Plotting
+## Low-Pass Filter
 
-Added visualization for:
-- frequency vs magnitude
+Implemented:
 
-This acts as a basic spectrum analyzer.
+```python
+low_pass_filter()
+```
+
+Keeps frequencies below selected cutoff.
+
+---
+
+## High-Pass Filter
+
+Implemented:
+
+```python
+high_pass_filter()
+```
+
+Keeps frequencies above selected cutoff.
+
+---
+
+## Band-Pass Filter
+
+Implemented:
+
+```python
+band_pass_filter()
+```
+
+Keeps only frequencies inside selected frequency range.
 
 ---
 
 # 📊 Current Output
 
-The system now generates:
+The toolkit now visualizes:
 
-## 1. Time-Domain Plot
-Displays noisy waveform over time.
+## 1. Noisy Signal
+Time-domain noisy waveform.
 
-## 2. Frequency Spectrum Plot
-Displays dominant frequencies inside the signal.
+## 2. FFT Before Filtering
+Original frequency spectrum.
 
-Observed:
-- strong peak at signal frequency
-- additional noise components across spectrum
+## 3. Filtered Signal
+Reconstructed filtered waveform.
+
+## 4. FFT After Filtering
+Filtered frequency spectrum.
 
 ---
 
 # 🔬 Example Workflow
 
 ```text
-Generate Signal
-        ↓
+Generate Multi-Frequency Signal
+            ↓
 Add Noise
-        ↓
+            ↓
 Apply FFT
-        ↓
-Extract Frequencies
-        ↓
-Generate Magnitude Spectrum
-        ↓
-Plot Frequency Spectrum
+            ↓
+Apply Frequency Filter
+            ↓
+Remove Unwanted Frequencies
+            ↓
+Apply Inverse FFT
+            ↓
+Reconstruct Signal
+            ↓
+Visualize Filtered Spectrum
 ```
 
 ---
 
 # 🧠 Key Learnings
 
-After Phase 2, the project can now:
+After Phase 3, the project can now:
 
-✅ Analyze signal frequencies  
-✅ Detect dominant frequency peaks  
-✅ Visualize frequency spectra  
-✅ Understand noisy signal composition  
-✅ Perform core DSP frequency analysis  
+✅ Isolate signal frequencies  
+✅ Remove unwanted noise  
+✅ Apply low-pass filtering  
+✅ Apply high-pass filtering  
+✅ Apply band-pass filtering  
+✅ Reconstruct filtered signals  
+✅ Analyze multi-frequency systems  
+✅ Validate Nyquist sampling conditions  
 
 ---
 
 # 🏢 Real-World Applications
 
-FFT is widely used in:
+Filtering systems are heavily used in:
 
 - Audio Processing
 - Wireless Communication
+- RF Signal Isolation
 - Radar Systems
-- RF Signal Analysis
-- Biomedical Signal Analysis
-- Speech Processing
-- Spectrum Analyzers
+- Biomedical Signal Processing
+- Embedded Systems
+- Speech Enhancement
+- Spectrum Analysis
 
 ---
 
 # 🎯 Status
 
-✅ Phase 2 Completed
+✅ Phase 3 Completed
