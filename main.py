@@ -1,3 +1,9 @@
+from audio.audio_processor import (
+    load_audio,
+    save_audio,
+    generate_time_axis
+)
+
 from signals.generator import (
     generate_multi_signal,
     generate_chirp_signal,
@@ -26,110 +32,178 @@ from processing.spectrogram import (
 
 
 # =====================================
-# SIGNAL TYPE SELECTION
+# MODE SELECTION
 # =====================================
 
-print("Select Signal Type")
-print("1. Multi-Frequency Signal")
-print("2. Chirp Signal")
+print("Select Input Mode")
+print("1. Synthetic Signal")
+print("2. Real Audio File")
 
-signal_choice = input(
+mode_choice = input(
     "Enter choice (1/2): "
 )
 
 
 # =====================================
-# COMMON INPUTS
+# SYNTHETIC SIGNAL MODE
 # =====================================
 
-amplitude = float(
-    input("Enter signal amplitude: ")
-)
+if mode_choice == "1":
 
-duration = float(
-    input("Enter signal duration (seconds): ")
-)
+    print("\nSelect Signal Type")
+    print("1. Multi-Frequency Signal")
+    print("2. Chirp Signal")
 
-sample_rate = int(
-    input("Enter sample rate (Hz): ")
-)
+    signal_choice = input(
+        "Enter choice (1/2): "
+    )
 
-noise_level = float(
-    input("Enter noise level: ")
-)
+    amplitude = float(
+        input("Enter signal amplitude: ")
+    )
+
+    duration = float(
+        input("Enter signal duration (seconds): ")
+    )
+
+    sample_rate = int(
+        input("Enter sample rate (Hz): ")
+    )
+
+    noise_level = float(
+        input("Enter noise level: ")
+    )
+
+    # ---------------------------------
+    # Multi-Frequency Signal
+    # ---------------------------------
+
+    if signal_choice == "1":
+
+        frequency_input = input(
+            "Enter frequencies separated by commas: "
+        )
+
+        frequencies_list = [
+            float(freq.strip())
+            for freq in frequency_input.split(",")
+        ]
+
+        max_frequency = max(frequencies_list)
+
+        if sample_rate < 2 * max_frequency:
+
+            print("\nWARNING:")
+            print("Sample rate violates Nyquist criterion.")
+
+        t, signal = generate_multi_signal(
+            frequencies=frequencies_list,
+            amplitude=amplitude,
+            duration=duration,
+            sample_rate=sample_rate
+        )
+
+    # ---------------------------------
+    # Chirp Signal
+    # ---------------------------------
+
+    elif signal_choice == "2":
+
+        start_frequency = float(
+            input("Enter chirp start frequency: ")
+        )
+
+        end_frequency = float(
+            input("Enter chirp end frequency: ")
+        )
+
+        max_frequency = max(
+            start_frequency,
+            end_frequency
+        )
+
+        if sample_rate < 2 * max_frequency:
+
+            print("\nWARNING:")
+            print("Sample rate violates Nyquist criterion.")
+
+        t, signal = generate_chirp_signal(
+            start_frequency=start_frequency,
+            end_frequency=end_frequency,
+            amplitude=amplitude,
+            duration=duration,
+            sample_rate=sample_rate
+        )
+
+    else:
+
+        print("Invalid signal choice")
+        exit()
+
+    # ---------------------------------
+    # Add Noise
+    # ---------------------------------
+
+    signal = add_noise(
+        signal,
+        noise_level=noise_level
+    )
 
 
 # =====================================
-# SIGNAL GENERATION
+# REAL AUDIO MODE
 # =====================================
 
-if signal_choice == "1":
+elif mode_choice == "2":
 
-    frequency_input = input(
-        "Enter frequencies separated by commas: "
+    audio_path = input(
+        "Enter path to audio file (.wav or .mp3): "
     )
 
-    frequencies_list = [
-        float(freq.strip())
-        for freq in frequency_input.split(",")
-    ]
+    signal, sample_rate = load_audio(audio_path)
 
-    max_frequency = max(frequencies_list)
+    print("\nAudio Loaded Successfully")
 
-    if sample_rate < 2 * max_frequency:
+    print(f"Sample Rate: {sample_rate} Hz")
 
-        print("\nWARNING:")
-        print("Sample rate violates Nyquist criterion.")
+    print(f"Signal Length: {len(signal)} samples")
 
-    t, signal = generate_multi_signal(
-        frequencies=frequencies_list,
-        amplitude=amplitude,
-        duration=duration,
-        sample_rate=sample_rate
+    t = generate_time_axis(
+        len(signal),
+        sample_rate
     )
 
-
-elif signal_choice == "2":
-
-    start_frequency = float(
-        input("Enter chirp start frequency: ")
-    )
-
-    end_frequency = float(
-        input("Enter chirp end frequency: ")
-    )
-
-    max_frequency = max(
-        start_frequency,
-        end_frequency
-    )
-
-    if sample_rate < 2 * max_frequency:
-
-        print("\nWARNING:")
-        print("Sample rate violates Nyquist criterion.")
-
-    t, signal = generate_chirp_signal(
-        start_frequency=start_frequency,
-        end_frequency=end_frequency,
-        amplitude=amplitude,
-        duration=duration,
-        sample_rate=sample_rate
-    )
 
 else:
 
-    print("Invalid signal choice")
+    print("Invalid mode choice")
     exit()
 
 
 # =====================================
-# ADD NOISE
+# SIGNAL VISUALIZATION
 # =====================================
 
-noisy_signal = add_noise(
+plot_signal(
+    t,
     signal,
-    noise_level=noise_level
+    title="Input Signal"
+)
+
+
+# =====================================
+# FFT BEFORE FILTERING
+# =====================================
+
+frequencies, magnitude = compute_fft(
+    signal,
+    sample_rate
+)
+
+plot_frequency_spectrum(
+    frequencies,
+    magnitude,
+    title="FFT Before Filtering"
 )
 
 
@@ -148,7 +222,7 @@ filter_choice = input(
 
 
 # =====================================
-# FILTERING
+# APPLY FILTER
 # =====================================
 
 if filter_choice == "1":
@@ -158,7 +232,7 @@ if filter_choice == "1":
     )
 
     filtered_signal = low_pass_filter(
-        noisy_signal,
+        signal,
         cutoff=cutoff,
         sample_rate=sample_rate
     )
@@ -173,7 +247,7 @@ elif filter_choice == "2":
     )
 
     filtered_signal = high_pass_filter(
-        noisy_signal,
+        signal,
         cutoff=cutoff,
         sample_rate=sample_rate
     )
@@ -192,7 +266,7 @@ elif filter_choice == "3":
     )
 
     filtered_signal = band_pass_filter(
-        noisy_signal,
+        signal,
         low_cutoff=low_cutoff,
         high_cutoff=high_cutoff,
         sample_rate=sample_rate
@@ -207,36 +281,30 @@ else:
 
 
 # =====================================
-# VISUALIZATION
+# SIGNAL COMPARISON
 # =====================================
-
-plot_signal(
-    t,
-    noisy_signal,
-    title="Noisy Signal"
-)
 
 compare_signals(
     t,
-    noisy_signal,
+    signal,
     filtered_signal,
-    original_title="Original Noisy Signal",
+    original_title="Original Signal",
     filtered_title=filter_title
 )
 
 
 # =====================================
-# FFT ANALYSIS
+# FFT AFTER FILTERING
 # =====================================
 
-frequencies, magnitude = compute_fft(
+filtered_frequencies, filtered_magnitude = compute_fft(
     filtered_signal,
     sample_rate
 )
 
 plot_frequency_spectrum(
-    frequencies,
-    magnitude,
+    filtered_frequencies,
+    filtered_magnitude,
     title="FFT After Filtering"
 )
 
@@ -263,3 +331,28 @@ plot_3d_spectrogram(
     spectrogram_data,
     title="3D Spectrogram"
 )
+
+
+# =====================================
+# SAVE AUDIO (ONLY FOR REAL AUDIO)
+# =====================================
+
+if mode_choice == "2":
+
+    save_choice = input(
+        "\nDo you want to save filtered audio? (y/n): "
+    )
+
+    if save_choice.lower() == "y":
+
+        output_path = input(
+            "Enter output file name (example: cleaned_audio.wav): "
+        )
+
+        save_audio(
+            output_path,
+            filtered_signal,
+            sample_rate
+        )
+
+        print("\nFiltered audio saved successfully")
