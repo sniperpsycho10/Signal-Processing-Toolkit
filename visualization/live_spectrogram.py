@@ -1,91 +1,34 @@
-import pyqtgraph as pg
-
-from pyqtgraph.Qt import (
-    QtWidgets,
-    QtCore,
-    QtGui
-)
+import sys
 
 import numpy as np
+
+import pyqtgraph as pg
+
+from PyQt5.QtWidgets import QApplication
+
+from PyQt5.QtCore import QTimer
+
+from PyQt5 import QtGui
 
 
 class LiveSpectrogramPlot:
 
-    def __init__(self, audio_input):
+    def __init__(
+
+            self,
+
+            audio_input,
+
+            processor=None
+    ):
 
         self.audio_input = audio_input
 
-        self.sample_rate = (
-            self.audio_input.sample_rate
-        )
+        self.processor = processor
 
-        self.block_size = (
-            self.audio_input.block_size
-        )
+        self.sample_rate = audio_input.sample_rate
 
-        # =================================
-        # Display only useful speech range
-        # =================================
-
-        self.max_frequency = 8000
-
-        # =================================
-        # FFT bins
-        # =================================
-
-        self.frequency_bins = (
-            self.block_size // 2 + 1
-        )
-
-        # =================================
-        # Frequency axis
-        # =================================
-
-        self.frequencies = np.fft.rfftfreq(
-
-            self.block_size,
-
-            d=1 / self.sample_rate
-        )
-
-        # =================================
-        # Keep only useful frequencies
-        # =================================
-
-        self.valid_bins = np.where(
-
-            self.frequencies <= self.max_frequency
-
-        )[0]
-
-        self.display_bins = len(
-            self.valid_bins
-        )
-
-        # =================================
-        # Waterfall buffer
-        # =================================
-
-        self.history_length = 300
-
-        self.spectrogram_data = np.zeros(
-
-            (
-                self.history_length,
-
-                self.display_bins
-            )
-        )
-
-        # =================================
-        # Qt Application
-        # =================================
-
-        self.app = QtWidgets.QApplication([])
-
-        # =================================
-        # Main Window
-        # =================================
+        self.app = QApplication(sys.argv)
 
         self.window = pg.GraphicsLayoutWidget(
 
@@ -94,24 +37,9 @@ class LiveSpectrogramPlot:
 
         self.window.resize(1200, 700)
 
-        self.window.show()
-
-        # =================================
-        # Plot
-        # =================================
-
         self.plot = self.window.addPlot(
 
             title="Realtime Waterfall Spectrogram"
-        )
-
-        self.plot.setLabel(
-
-            'bottom',
-
-            'Frequency',
-
-            units='Hz'
         )
 
         self.plot.setLabel(
@@ -121,200 +49,149 @@ class LiveSpectrogramPlot:
             'Time Frames'
         )
 
-        self.plot.showGrid(
+        self.plot.setLabel(
 
-            x=True,
+            'bottom',
 
-            y=True
+            'Frequency (Hz)'
         )
-
-        # =================================
-        # Proper display range
-        # =================================
-
-        self.plot.setXRange(
-
-            0,
-
-            self.max_frequency
-        )
-
-        # =================================
-        # Image item
-        # =================================
 
         self.image = pg.ImageItem()
 
-        self.plot.addItem(
-            self.image
+        self.plot.addItem(self.image)
+
+        self.history_length = 150
+
+        self.fft_size = 2048
+
+        self.spectrogram = np.zeros(
+
+            (
+
+                self.history_length,
+
+                self.fft_size // 2 + 1
+            )
         )
 
-        # =================================
-        # Correct image scaling
-        # =================================
+        colormap = pg.colormap.get(
 
-        freq_resolution = (
+            'inferno'
+        )
 
-            self.max_frequency
+        self.image.setLookupTable(
 
-        ) / self.display_bins
+            colormap.getLookupTable()
+        )
+
+        self.image.setLevels(
+
+            [-80, 0]
+        )
 
         transform = QtGui.QTransform()
 
         transform.scale(
 
-            freq_resolution,
+            self.sample_rate / self.fft_size,
 
             1
         )
 
-        self.image.setTransform(
-            transform
-        )
+        self.image.setTransform(transform)
 
-        # =================================
-        # Better colormap
-        # =================================
-
-        colormap = pg.colormap.get(
-            'inferno'
-        )
-
-        self.image.setColorMap(
-            colormap
-        )
-
-        # =================================
-        # Update timer
-        # =================================
-
-        self.timer = QtCore.QTimer()
+        self.timer = QTimer()
 
         self.timer.timeout.connect(
-            self.update_plot
+
+            self.update
         )
 
-        self.timer.start(40)
+        self.timer.start(60)
 
 
-    def update_plot(self):
+    def update(self):
 
-        audio_data = (
-            self.audio_input.get_latest_audio()
-        )
+        data = self.audio_input.get_latest_audio()
+
+        if data is None:
+
+            return
+
+        if self.processor is not None:
+
+            data = self.processor.process(data)
+
+        # =================================
+        # Recorder support
+        # =================================
+
+        if hasattr(self, 'recorder'):
+
+            self.recorder.add_audio_data(data)
 
         # =================================
         # Remove DC offset
         # =================================
 
-        audio_data = (
-            audio_data - np.mean(audio_data)
-        )
-
-        # =================================
-        # Stronger noise gate
-        # =================================
-
-        threshold = 0.04
-
-        audio_data[
-            np.abs(audio_data) < threshold
-        ] = 0
+        data = data - np.mean(data)
 
         # =================================
         # Hann window
         # =================================
 
-        window = np.hanning(
-            len(audio_data)
-        )
+        window = np.hanning(len(data))
 
-        audio_data = (
-            audio_data * window
-        )
+        data = data * window
 
         # =================================
         # FFT
         # =================================
 
         fft_data = np.fft.rfft(
-            audio_data
+
+            data,
+
+            n=self.fft_size
         )
 
-        magnitude = np.abs(
-            fft_data
-        )
-
-        # =================================
-        # Keep only useful bins
-        # =================================
-
-        magnitude = magnitude[
-            self.valid_bins
-        ]
-
-        # =================================
-        # dB scaling
-        # =================================
+        magnitude = np.abs(fft_data)
 
         magnitude = 20 * np.log10(
+
             magnitude + 1e-6
         )
-
-        # =================================
-        # Better dynamic range
-        # =================================
 
         magnitude = np.clip(
 
             magnitude,
 
-            -55,
+            -80,
 
-            -15
+            0
         )
 
-        # =================================
-        # Normalize
-        # =================================
+        self.spectrogram = np.roll(
 
-        magnitude = (
+            self.spectrogram,
 
-            magnitude + 55
+            -1,
 
-        ) / 40
-
-        # =================================
-        # Shift waterfall
-        # =================================
-
-        self.spectrogram_data[:-1] = (
-
-            self.spectrogram_data[1:]
+            axis=0
         )
 
-        # =================================
-        # Add newest FFT row
-        # =================================
-
-        self.spectrogram_data[-1] = (
-            magnitude
-        )
-
-        # =================================
-        # Update image
-        # =================================
+        self.spectrogram[-1, :] = magnitude
 
         self.image.setImage(
 
-            self.spectrogram_data.T,
+            self.spectrogram,
 
-            autoLevels=False,
-
-            levels=(0, 1)
+            autoLevels=False
         )
 
 
     def start(self):
 
-        QtWidgets.QApplication.instance().exec_()
+        self.window.show()
+
+        sys.exit(self.app.exec_())

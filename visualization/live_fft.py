@@ -1,55 +1,32 @@
-import pyqtgraph as pg
-
-from pyqtgraph.Qt import (
-    QtWidgets,
-    QtCore
-)
+import sys
 
 import numpy as np
+
+import pyqtgraph as pg
+
+from PyQt5.QtWidgets import QApplication
+
+from PyQt5.QtCore import QTimer
 
 
 class LiveFFTPlot:
 
-    def __init__(self, audio_input):
+    def __init__(
+
+            self,
+
+            audio_input,
+
+            processor=None
+    ):
 
         self.audio_input = audio_input
 
-        self.sample_rate = (
-            self.audio_input.sample_rate
-        )
+        self.processor = processor
 
-        self.block_size = (
-            self.audio_input.block_size
-        )
+        self.sample_rate = audio_input.sample_rate
 
-        # =================================
-        # Frequency axis
-        # =================================
-
-        self.frequencies = np.fft.rfftfreq(
-
-            self.block_size,
-
-            d=1 / self.sample_rate
-        )
-
-        # =================================
-        # FFT smoothing buffer
-        # =================================
-
-        self.smoothed_fft = np.zeros(
-            len(self.frequencies)
-        )
-
-        # =================================
-        # Create Qt app
-        # =================================
-
-        self.app = QtWidgets.QApplication([])
-
-        # =================================
-        # Main window
-        # =================================
+        self.app = QApplication(sys.argv)
 
         self.window = pg.GraphicsLayoutWidget(
 
@@ -58,25 +35,12 @@ class LiveFFTPlot:
 
         self.window.resize(1200, 600)
 
-        self.window.show()
-
-        # =================================
-        # Plot
-        # =================================
-
         self.plot = self.window.addPlot(
 
             title="Realtime Frequency Spectrum"
         )
 
-        self.plot.setLabel(
-
-            'bottom',
-
-            'Frequency',
-
-            units='Hz'
-        )
+        self.plot.showGrid(x=True, y=True)
 
         self.plot.setLabel(
 
@@ -85,148 +49,101 @@ class LiveFFTPlot:
             'Magnitude (dB)'
         )
 
-        self.plot.showGrid(
+        self.plot.setLabel(
 
-            x=True,
+            'bottom',
 
-            y=True
+            'Frequency (Hz)'
         )
-
-        # =================================
-        # Better voice-focused range
-        # =================================
 
         self.plot.setXRange(
 
             0,
 
-            5000
+            8000
         )
 
-        self.plot.setYRange(
-
-            -80,
-
-            0
-        )
-
-        # =================================
-        # FFT curve
-        # =================================
+        self.plot.setYRange(-100, 10)
 
         self.curve = self.plot.plot(
+
             pen='y'
         )
 
-        # =================================
-        # Timer
-        # =================================
-
-        self.timer = QtCore.QTimer()
+        self.timer = QTimer()
 
         self.timer.timeout.connect(
-            self.update_plot
+
+            self.update
         )
 
-        self.timer.start(30)
+        self.timer.start(60)
 
 
-    def update_plot(self):
+    def update(self):
 
-        audio_data = (
-            self.audio_input.get_latest_audio()
-        )
+        data = self.audio_input.get_latest_audio()
+
+        if data is None:
+
+            return
+
+        if self.processor is not None:
+
+            data = self.processor.process(data)
+
+        # =================================
+        # Recorder support
+        # =================================
+
+        if hasattr(self, 'recorder'):
+
+            self.recorder.add_audio_data(data)
 
         # =================================
         # Remove DC offset
         # =================================
 
-        audio_data = (
-            audio_data - np.mean(audio_data)
-        )
-
-        # =================================
-        # Gentle normalization
-        # =================================
-
-        max_val = np.max(
-            np.abs(audio_data)
-        ) + 1e-6
-
-        audio_data = (
-            audio_data / max_val
-        )
+        data = data - np.mean(data)
 
         # =================================
         # Hann window
         # =================================
 
-        window = np.hanning(
-            len(audio_data)
-        )
+        window = np.hanning(len(data))
 
-        audio_data = (
-            audio_data * window
-        )
+        data = data * window
 
         # =================================
         # FFT
         # =================================
 
-        fft_data = np.fft.rfft(
-            audio_data
-        )
+        fft_data = np.fft.rfft(data)
 
-        magnitude = np.abs(
-            fft_data
-        )
-
-        # =================================
-        # dB scaling
-        # =================================
+        magnitude = np.abs(fft_data)
 
         magnitude = 20 * np.log10(
+
             magnitude + 1e-6
         )
 
-        # =================================
-        # Stable clipping
-        # =================================
+        frequencies = np.fft.rfftfreq(
 
-        magnitude = np.clip(
+            len(data),
 
-            magnitude,
-
-            -80,
-
-            0
+            1 / self.sample_rate
         )
-
-        # =================================
-        # STRONGER smoothing
-        # =================================
-
-        alpha = 0.93
-
-        self.smoothed_fft = (
-
-            alpha * self.smoothed_fft +
-
-            (1 - alpha) * magnitude
-        )
-
-        # =================================
-        # Update graph
-        # =================================
 
         self.curve.setData(
 
-            self.frequencies,
+            frequencies,
 
-            self.smoothed_fft
+            magnitude
         )
 
 
     def start(self):
 
-        QtWidgets.QApplication.instance().exec_()
+        self.window.show()
+
+        sys.exit(self.app.exec_())

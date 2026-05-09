@@ -1,20 +1,30 @@
-import pyqtgraph as pg
-
-from pyqtgraph.Qt import (
-    QtWidgets,
-    QtCore
-)
+import sys
 
 import numpy as np
+
+import pyqtgraph as pg
+
+from PyQt5.QtWidgets import QApplication
+
+from PyQt5.QtCore import QTimer
 
 
 class LiveWaveformPlot:
 
-    def __init__(self, audio_input):
+    def __init__(
+
+            self,
+
+            audio_input,
+
+            processor=None
+    ):
 
         self.audio_input = audio_input
 
-        self.app = QtWidgets.QApplication([])
+        self.processor = processor
+
+        self.app = QApplication(sys.argv)
 
         self.window = pg.GraphicsLayoutWidget(
 
@@ -23,71 +33,77 @@ class LiveWaveformPlot:
 
         self.window.resize(1200, 600)
 
-        self.window.show()
-
         self.plot = self.window.addPlot(
 
-            title="Realtime Microphone Waveform"
+            title="Live Microphone Waveform"
         )
 
-        self.plot.setLabel(
-            'bottom',
-            'Samples'
-        )
+        self.plot.showGrid(x=True, y=True)
 
         self.plot.setLabel(
+
             'left',
+
             'Amplitude'
         )
 
-        self.plot.showGrid(
-            x=True,
-            y=True
+        self.plot.setLabel(
+
+            'bottom',
+
+            'Samples'
         )
 
-        self.plot.setYRange(
-            -1,
-            1
-        )
+        self.plot.setYRange(-1, 1)
 
         self.curve = self.plot.plot(
             pen='c'
         )
 
-        self.timer = QtCore.QTimer()
+        self.timer = QTimer()
 
         self.timer.timeout.connect(
-            self.update_plot
+            self.update
         )
 
-        self.timer.start(20)
+        self.timer.start(60)
 
 
-    def update_plot(self):
+    def update(self):
 
-        audio_data = (
-            self.audio_input.get_latest_audio()
-        )
+        data = self.audio_input.get_latest_audio()
 
+        if data is None:
+
+            return
+
+        if self.processor is not None:
+
+            data = self.processor.process(data)
+
+        # =================================
         # Remove DC offset
-        audio_data = (
-            audio_data - np.mean(audio_data)
-        )
+        # =================================
 
+        data = data - np.mean(data)
+
+        # =================================
         # Normalize
+        # =================================
+
         max_val = np.max(
-            np.abs(audio_data)
+            np.abs(data)
         ) + 1e-6
 
-        audio_data = (
-            audio_data / max_val
+        data = (
+            data / max_val
         ) * 0.8
 
-        self.curve.setData(
-            audio_data
-        )
+        self.curve.setData(data)
 
 
     def start(self):
 
-        QtWidgets.QApplication.instance().exec_()
+        self.window.show()
+
+        sys.exit(self.app.exec_())

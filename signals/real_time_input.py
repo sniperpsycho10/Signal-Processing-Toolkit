@@ -1,4 +1,5 @@
 import sounddevice as sd
+
 import numpy as np
 
 
@@ -22,21 +23,13 @@ class RealTimeAudioInput:
         self.block_size = block_size
 
         self.latest_audio = np.zeros(
-            block_size
+            block_size,
+            dtype=np.float32
         )
 
         self.stream = None
 
-        # =================================
-        # Use Linux default microphone
-        # =================================
-
-        self.device_id = sd.default.device[0]
-
-        print(
-            f"\nUsing input device: "
-            f"{self.device_id}"
-        )
+        self.recorder = None
 
 
     def audio_callback(
@@ -56,9 +49,27 @@ class RealTimeAudioInput:
 
             print(status)
 
-        self.latest_audio = (
-            indata[:, 0]
-        )
+        # =================================
+        # Convert to mono
+        # =================================
+
+        audio_data = indata[:, 0].copy()
+
+        # =================================
+        # Store latest audio
+        # =================================
+
+        self.latest_audio = audio_data
+
+        # =================================
+        # Recording support
+        # =================================
+
+        if self.recorder is not None:
+
+            self.recorder.add_audio_data(
+                audio_data
+            )
 
 
     def start_stream(self):
@@ -71,9 +82,7 @@ class RealTimeAudioInput:
 
             blocksize=self.block_size,
 
-            callback=self.audio_callback,
-
-            device=self.device_id
+            callback=self.audio_callback
         )
 
         self.stream.start()

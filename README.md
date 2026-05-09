@@ -1,183 +1,241 @@
-# Phase 6 – Real-Time Interactive DSP System
+# Phase 7 – Interactive Realtime DSP Workstation
 
 ## Overview
 
-Phase 6 transforms the Signal Processing Toolkit from an offline DSP application into a real-time interactive DSP workstation.
+Phase 7 upgrades the Signal Processing Toolkit into a complete interactive realtime DSP workstation.
 
 This phase introduces:
 
-- Real-time microphone signal acquisition
-- Live waveform visualization
-- Real-time FFT spectrum analysis
-- Live waterfall spectrogram visualization
-- PyQtGraph accelerated rendering
-- Zooming and panning support
-- Integrated DSP toolkit combining:
-  - Synthetic signals
-  - Chirp signals
-  - Audio file processing
-  - Live microphone DSP
+- Interactive DSP dashboard
+- Realtime filter controls
+- GUI-based DSP parameter tuning
+- Unified waveform, FFT, and spectrogram visualization
+- Professional audio recording system
+- Timestamped WAV recordings
+- Realtime DSP experimentation environment
+- Multi-panel PyQtGraph dashboard
+- Interactive realtime signal analysis
 
-The toolkit now supports both:
+The toolkit now behaves similarly to professional DSP software such as:
 
-- Offline DSP analysis
-- Real-time DSP visualization
-
-similar to professional:
-- Oscilloscopes
+- Audacity
+- SDR#
+- GNU Radio visualization panels
 - Spectrum analyzers
-- SDR (Software Defined Radio) tools
-- Audio analysis software
+- Oscilloscope software
+- Audio analysis workstations
 
 ---
 
-# Features Implemented
+# Major Features Implemented
 
-## 1. Real-Time Microphone Processing
+---
 
-Implemented a real-time audio streaming system using:
+# 1. Unified Realtime DSP Dashboard
 
-- `sounddevice`
+Implemented a complete realtime DSP dashboard using:
+
+- PyQt5
+- PyQtGraph
+- Multi-panel GUI layouts
+
+The dashboard simultaneously displays:
+
+- Realtime waveform
+- Realtime FFT spectrum
+- Realtime waterfall spectrogram
+
+All visualizations are synchronized using a shared realtime audio pipeline.
+
+---
+
+# 2. Interactive DSP Control Panel
+
+Added a professional GUI control panel for realtime DSP interaction.
+
+Features include:
+
+- Filter type selection
+- Live DSP control switching
+- Realtime cutoff tuning
+- Interactive parameter adjustment
+- Reset filter controls
+
+Supported filters:
+
+- No Filter
+- Low-pass Filter
+- High-pass Filter
+- Band-pass Filter
+
+This allows realtime DSP experimentation directly from the GUI.
+
+---
+
+# 3. Realtime DSP Filtering System
+
+Implemented a realtime DSP processing engine using:
+
+- Butterworth filters
+- Streaming audio pipelines
+- Realtime filter processing
+
+Implemented filters:
+
+## Low-pass Filter
+Removes high-frequency components while preserving low frequencies.
+
+## High-pass Filter
+Removes low-frequency components while preserving high frequencies.
+
+## Band-pass Filter
+Isolates a selected frequency range.
+
+Realtime filter changes instantly affect:
+
+- Waveform
+- FFT spectrum
+- Spectrogram
+
+---
+
+# 4. Professional Realtime Recording System
+
+Implemented a callback-based realtime audio recording architecture.
+
+Features include:
+
+- Realtime WAV recording
 - Callback-based audio capture
-- Streaming audio buffers
+- Timestamped recordings
+- Automatic recordings folder generation
+- GUI recording controls
+- Start/Stop recording buttons
+- Live recording status indicator
+- Recording duration timer
 
-Features:
-- Automatic Linux default microphone handling
-- Support for:
-  - Laptop microphone
-  - Wired 3.5mm headset microphone
-  - External audio devices
+Recordings are saved in:
 
----
+```text
+recordings/
+```
 
-## 2. Real-Time Waveform Visualization
+with timestamped filenames:
 
-Implemented a live waveform viewer using:
-
-- `PyQtGraph`
-- Real-time GUI rendering
-- Continuous waveform updates
-
-Features:
-- Live amplitude vs time display
-- Smooth rendering
-- Zooming support
-- Panning support
-- Low-latency visualization
+```text
+recording_YYYYMMDD_HHMMSS.wav
+```
 
 ---
 
-## 3. Real-Time FFT Spectrum Analyzer
+# 5. Realtime FFT Spectrum Analyzer
 
-Implemented a real-time frequency spectrum analyzer.
+Implemented a realtime FFT spectrum analyzer with:
 
-Features:
-- Real-time FFT computation
-- Frequency-domain visualization
+- Live FFT computation
 - dB-scaled magnitude display
-- FFT smoothing
 - Hann window preprocessing
 - DC offset removal
+- Realtime spectral visualization
 
 This allows:
-- Voice frequency analysis
-- Harmonic visualization
-- Real-time spectral analysis
+
+- Frequency analysis
+- Harmonic observation
+- DSP filter verification
+- Speech frequency analysis
 
 ---
 
-## 4. Real-Time Waterfall Spectrogram
+# 6. Realtime Waterfall Spectrogram
 
-Implemented a live scrolling spectrogram system.
+Implemented a realtime scrolling spectrogram system.
 
 Features:
-- Waterfall frequency visualization
+
+- Waterfall visualization
 - Time-frequency analysis
-- Real-time spectrogram updates
-- Inferno color mapping
-- Noise gating
-- Dynamic range tuning
+- Dynamic spectrogram updates
+- Inferno colormap visualization
+- Frequency evolution tracking
 
-This visualizes:
+This enables visualization of:
+
 - Speech harmonics
-- Whistling frequencies
-- Frequency changes over time
+- Chirps
+- Frequency sweeps
+- Filter behavior over time
 
 ---
 
-## 5. DSP Signal Conditioning
+# 7. Optimized Realtime DSP Performance
 
-Added professional DSP preprocessing techniques:
+Improved realtime DSP stability using:
 
-### Implemented:
-- DC offset removal
-- Hann windowing
-- FFT smoothing
-- Noise gating
-- Dynamic range clipping
-- dB scaling
+- Reduced GUI update rate
+- Optimized FFT sizes
+- Reduced spectrogram history size
+- Callback-based recording architecture
+- Efficient PyQtGraph rendering
 
-These significantly improve:
-- FFT stability
-- Spectrogram clarity
-- Noise suppression
+This significantly improved:
 
----
-
-## 6. PyQtGraph Accelerated Rendering
-
-Migrated real-time visualization from:
-- Matplotlib
-
-to:
-- PyQtGraph
-
-Benefits:
-- Faster rendering
-- Smooth GUI interaction
 - Realtime responsiveness
-- Built-in zooming and panning
+- Recording stability
+- FFT smoothness
+- Spectrogram performance
 
 ---
 
-## 7. Unified DSP Toolkit
+# 8. Professional DSP Architecture
 
-Integrated all previous phases into one unified launcher.
+The system now uses a professional realtime DSP architecture:
 
-The toolkit now supports:
+```text
+Microphone Input
+        ↓
+Realtime Audio Callback
+        ↓
+Audio Buffer
+        ↓
+DSP Processor
+        ↓
+Waveform / FFT / Spectrogram
+```
 
-### Offline DSP
-- Synthetic multi-frequency signals
-- Chirp signal generation
-- Audio file analysis (.wav/.mp3)
-
-### Real-Time DSP
-- Live microphone waveform
-- Live FFT spectrum
-- Live spectrogram
+Recording operates independently using callback-based audio capture.
 
 ---
 
 # Project Architecture
 
+```text
 signal_processing_toolkit/
 
-│── signals/  
-│   ├── generator.py  
-│   ├── audio_loader.py  
-│   ├── real_time_input.py  
-
-│── processing/  
-│   ├── fft_analysis.py  
-│   ├── spectrogram.py  
-
-│── visualization/  
-│   ├── plots.py  
-│   ├── live_graphs.py  
-│   ├── live_fft.py  
-│   ├── live_spectrogram.py  
-
-│── phase6_main.py  
+│── signals/
+│   ├── generator.py
+│   ├── audio_loader.py
+│   ├── real_time_input.py
+│   ├── realtime_processor.py
+│   ├── audio_recorder.py
+│
+│── processing/
+│   ├── fft_analysis.py
+│   ├── spectrogram.py
+│   ├── filters.py
+│
+│── visualization/
+│   ├── plots.py
+│   ├── live_graphs.py
+│   ├── live_fft.py
+│   ├── live_spectrogram.py
+│   ├── live_dashboard.py
+│
+│── recordings/
+│
+│── main.py
+│── phase6_main.py
+```
 
 ---
 
@@ -186,33 +244,151 @@ signal_processing_toolkit/
 - Python
 - NumPy
 - SciPy
-- Matplotlib
-- PyQtGraph
 - PyQt5
+- PyQtGraph
 - SoundDevice
+- Matplotlib
 
 ---
 
-# Real-Time DSP Concepts Learned
+# DSP Concepts Learned
 
-This phase introduced important DSP engineering concepts:
+This phase introduced several advanced DSP and software engineering concepts:
 
-- Streaming DSP
-- Audio buffering
-- Callback systems
-- Real-time FFT analysis
-- Waterfall spectrograms
+- Realtime DSP pipelines
+- Streaming audio systems
+- Interactive DSP controls
+- Callback-based recording
+- FFT analysis
 - Time-frequency analysis
-- GUI rendering systems
-- Low-latency visualization
-- Signal conditioning
-- Dynamic range control
+- Waterfall spectrograms
+- DSP filter design
+- Low-pass filtering
+- High-pass filtering
+- Band-pass filtering
+- GUI event systems
+- Realtime synchronization
+- Audio buffering
+- Realtime visualization systems
 
 ---
 
-# How to Run
+# How To Run
 
 ## Install Dependencies
 
 ```bash
 pip install numpy scipy matplotlib pyqtgraph PyQt5 sounddevice
+```
+
+---
+
+# Run DSP Toolkit
+
+```bash
+python phase6_main.py
+```
+
+---
+
+# Available Modes
+
+```text
+1. Synthetic Signal
+2. Chirp Signal
+3. Audio File
+4. Live Microphone
+```
+
+---
+
+# Realtime Visualization Modes
+
+```text
+1. Realtime Waveform
+2. Realtime FFT Spectrum
+3. Realtime Spectrogram
+4. Full DSP Dashboard
+```
+
+---
+
+# DSP Dashboard Features
+
+The realtime DSP dashboard supports:
+
+- Live waveform visualization
+- Live FFT analysis
+- Live spectrogram visualization
+- Interactive DSP filters
+- Realtime cutoff tuning
+- GUI-based DSP controls
+- Live audio recording
+- Timestamped WAV export
+
+---
+
+# Recommended DSP Experiments
+
+## Low-pass Filter
+
+Try:
+
+```text
+1000 Hz
+```
+
+Observe:
+- High frequencies disappear
+- FFT compresses toward lower frequencies
+
+---
+
+## High-pass Filter
+
+Try:
+
+```text
+2000 Hz
+```
+
+Observe:
+- Low frequencies disappear
+- Speech becomes sharper
+
+---
+
+## Band-pass Filter
+
+Try:
+
+```text
+300 Hz → 3000 Hz
+```
+
+Observe:
+- Speech frequencies become isolated
+- Background frequencies disappear
+
+---
+
+# Key Achievements
+
+Successfully built:
+
+- Interactive realtime DSP workstation
+- Unified DSP dashboard
+- Professional realtime audio pipeline
+- Interactive DSP control system
+- Realtime FFT analyzer
+- Realtime waterfall spectrogram
+- Professional WAV recording system
+- GUI-controlled DSP experimentation platform
+
+This phase marks the transition from:
+
+- Realtime DSP visualization
+
+to:
+
+- Professional interactive DSP software engineering.

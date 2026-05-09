@@ -1,3 +1,7 @@
+import os
+
+from datetime import datetime
+
 import numpy as np
 
 from signals.generator import (
@@ -12,6 +16,14 @@ from signals.audio_loader import (
 
 from signals.real_time_input import (
     RealTimeAudioInput
+)
+
+from signals.realtime_processor import (
+    RealtimeDSPProcessor
+)
+
+from signals.audio_recorder import (
+    AudioRecorder
 )
 
 from processing.fft_analysis import (
@@ -38,6 +50,10 @@ from visualization.live_fft import (
 
 from visualization.live_spectrogram import (
     LiveSpectrogramPlot
+)
+
+from visualization.live_dashboard import (
+    LiveDSPDashboard
 )
 
 
@@ -68,17 +84,15 @@ def synthetic_signal_menu():
 
     frequencies = [50, 120, 300]
 
-    t, signal = (
-        generate_multi_signal(
+    t, signal = generate_multi_signal(
 
-            frequencies=frequencies,
+        frequencies=frequencies,
 
-            amplitude=amplitude,
+        amplitude=amplitude,
 
-            duration=duration,
+        duration=duration,
 
-            sample_rate=sample_rate
-        )
+        sample_rate=sample_rate
     )
 
     signal = add_noise(
@@ -126,19 +140,17 @@ def chirp_signal_menu():
         input("Enter end frequency: ")
     )
 
-    t, signal = (
-        generate_chirp_signal(
+    t, signal = generate_chirp_signal(
 
-            start_frequency=start_frequency,
+        start_frequency=start_frequency,
 
-            end_frequency=end_frequency,
+        end_frequency=end_frequency,
 
-            amplitude=amplitude,
+        amplitude=amplitude,
 
-            duration=duration,
+        duration=duration,
 
-            sample_rate=sample_rate
-        )
+        sample_rate=sample_rate
     )
 
     signal = add_noise(
@@ -166,8 +178,8 @@ def audio_file_menu():
         "Enter audio file path: "
     )
 
-    signal, sample_rate = (
-        load_audio(file_path)
+    signal, sample_rate = load_audio(
+        file_path
     )
 
     t = np.linspace(
@@ -199,8 +211,24 @@ def live_microphone_menu():
 
     print("3. Realtime Spectrogram")
 
+    print("4. Full DSP Dashboard")
+
     choice = input(
         "\nEnter choice: "
+    )
+
+    print("\n========= FILTER OPTIONS =========")
+
+    print("1. No Filter")
+
+    print("2. Low-pass Filter")
+
+    print("3. High-pass Filter")
+
+    print("4. Band-pass Filter")
+
+    filter_choice = input(
+        "\nEnter filter choice: "
     )
 
     audio_input = RealTimeAudioInput(
@@ -209,8 +237,106 @@ def live_microphone_menu():
 
         channels=1,
 
-        block_size=2048
+        block_size=1024
     )
+
+    processor = RealtimeDSPProcessor(
+
+        sample_rate=44100
+    )
+
+    # =================================
+    # FILTER SETUP
+    # =================================
+
+    if filter_choice == "2":
+
+        cutoff = float(
+
+            input(
+                "Enter low-pass cutoff frequency (Hz): "
+            )
+        )
+
+        processor.set_lowpass(cutoff)
+
+    elif filter_choice == "3":
+
+        cutoff = float(
+
+            input(
+                "Enter high-pass cutoff frequency (Hz): "
+            )
+        )
+
+        processor.set_highpass(cutoff)
+
+    elif filter_choice == "4":
+
+        lowcut = float(
+
+            input(
+                "Enter band-pass LOW cutoff frequency (Hz): "
+            )
+        )
+
+        highcut = float(
+
+            input(
+                "Enter band-pass HIGH cutoff frequency (Hz): "
+            )
+        )
+
+        processor.set_bandpass(
+
+            lowcut,
+
+            highcut
+        )
+
+    else:
+
+        processor.disable_filter()
+
+    # =================================
+    # CREATE RECORDINGS DIRECTORY
+    # =================================
+
+    os.makedirs(
+
+        "recordings",
+
+        exist_ok=True
+    )
+
+    # =================================
+    # TIMESTAMPED FILENAME
+    # =================================
+
+    timestamp = datetime.now().strftime(
+        "%Y%m%d_%H%M%S"
+    )
+
+    filename = (
+        f"recordings/recording_{timestamp}.wav"
+    )
+
+    # =================================
+    # RECORDER
+    # =================================
+
+    recorder = AudioRecorder(
+
+        filename=filename,
+
+        sample_rate=44100
+    )
+
+    audio_input.recorder = recorder
+
+    # =================================
+    # START AUDIO STREAM
+    # =================================
 
     audio_input.start_stream()
 
@@ -218,33 +344,49 @@ def live_microphone_menu():
 
         if choice == "1":
 
-            waveform = (
-                LiveWaveformPlot(
-                    audio_input
-                )
+            waveform = LiveWaveformPlot(
+
+                audio_input,
+
+                processor
             )
 
             waveform.start()
 
         elif choice == "2":
 
-            fft_plot = (
-                LiveFFTPlot(
-                    audio_input
-                )
+            fft_plot = LiveFFTPlot(
+
+                audio_input,
+
+                processor
             )
 
             fft_plot.start()
 
         elif choice == "3":
 
-            spectrogram = (
-                LiveSpectrogramPlot(
-                    audio_input
-                )
+            spectrogram = LiveSpectrogramPlot(
+
+                audio_input,
+
+                processor
             )
 
             spectrogram.start()
+
+        elif choice == "4":
+
+            dashboard = LiveDSPDashboard(
+
+                audio_input,
+
+                processor,
+
+                recorder
+            )
+
+            dashboard.start()
 
         else:
 
@@ -253,6 +395,10 @@ def live_microphone_menu():
     finally:
 
         audio_input.stop_stream()
+
+        if recorder.is_recording:
+
+            recorder.stop_recording()
 
 
 def visualization_menu(
@@ -289,13 +435,11 @@ def visualization_menu(
 
     elif choice == "2":
 
-        frequencies, magnitude = (
-            compute_fft(
+        frequencies, magnitude = compute_fft(
 
-                signal,
+            signal,
 
-                sample_rate
-            )
+            sample_rate
         )
 
         plot_frequency_spectrum(
@@ -309,13 +453,11 @@ def visualization_menu(
 
     elif choice == "3":
 
-        frequencies, times, Sxx = (
-            compute_spectrogram(
+        frequencies, times, Sxx = compute_spectrogram(
 
-                signal,
+            signal,
 
-                sample_rate
-            )
+            sample_rate
         )
 
         plot_spectrogram(
