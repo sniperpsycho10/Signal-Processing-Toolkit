@@ -1,351 +1,358 @@
-# 🚀 Phase 5 — Real Audio Processing System
+from audio.audio_processor import (
+    load_audio,
+    save_audio,
+    generate_time_axis
+)
 
-This phase upgrades the DSP toolkit from synthetic signal analysis to:
+from signals.generator import (
+    generate_multi_signal,
+    generate_chirp_signal,
+    add_noise
+)
 
-# Real-World Audio Signal Processing
+from visualization.plots import (
+    plot_signal,
+    plot_frequency_spectrum,
+    compare_signals,
+    plot_spectrogram,
+    plot_3d_spectrogram
+)
 
-The toolkit can now:
-- load real audio files
-- process WAV/MP3 recordings
-- perform FFT and spectrogram analysis on real audio
-- apply DSP filtering to actual sound signals
-- generate 2D and 3D spectrograms
-- save processed audio
+from processing.fft_analysis import compute_fft
 
-This phase transforms the project into a practical DSP audio analysis platform.
+from processing.filters import (
+    low_pass_filter,
+    high_pass_filter,
+    band_pass_filter
+)
 
----
+from processing.spectrogram import (
+    compute_spectrogram
+)
 
-# ✅ Features Implemented
 
-- Real audio file loading
-- WAV file support
-- MP3 file support
-- Stereo to mono conversion
-- Real audio waveform visualization
-- FFT analysis on real audio
-- Audio filtering system
-- 2D spectrogram visualization
-- 3D spectrogram visualization
-- Processed audio reconstruction
-- Processed audio saving
-- Hybrid DSP system:
-  - synthetic signals
-  - real audio processing
+# =====================================
+# MODE SELECTION
+# =====================================
 
----
+print("Select Input Mode")
+print("1. Synthetic Signal")
+print("2. Real Audio File")
 
-# 🧠 DSP Concepts Covered
+mode_choice = input(
+    "Enter choice (1/2): "
+)
 
-## 1. Real Audio Signal Processing
 
-The toolkit now processes:
-- speech recordings
-- music clips
-- ambient audio
-- real-world sound signals
+# =====================================
+# SYNTHETIC SIGNAL MODE
+# =====================================
 
-Unlike synthetic sine waves, real audio contains:
-- harmonics
-- noise
-- dynamic frequencies
-- complex waveforms
+if mode_choice == "1":
 
----
+    print("\nSelect Signal Type")
+    print("1. Multi-Frequency Signal")
+    print("2. Chirp Signal")
 
-## 2. Audio File Loading
+    signal_choice = input(
+        "Enter choice (1/2): "
+    )
 
-Implemented support for:
-- `.wav`
-- `.mp3`
+    amplitude = float(
+        input("Enter signal amplitude: ")
+    )
 
-using:
-- librosa
-- scipy
-- soundfile
+    duration = float(
+        input("Enter signal duration (seconds): ")
+    )
 
----
+    sample_rate = int(
+        input("Enter sample rate (Hz): ")
+    )
 
-## 3. Stereo to Mono Conversion
+    noise_level = float(
+        input("Enter noise level: ")
+    )
 
-Real audio files are often stereo:
-- left channel
-- right channel
+    # ---------------------------------
+    # Multi-Frequency Signal
+    # ---------------------------------
 
-The toolkit converts stereo audio into mono for:
-- simpler DSP processing
-- easier FFT analysis
-- simplified filtering pipelines
+    if signal_choice == "1":
 
-Conversion concept:
+        frequency_input = input(
+            "Enter frequencies separated by commas: "
+        )
 
-```python
-mono = (left + right) / 2
-```
+        frequencies_list = [
+            float(freq.strip())
+            for freq in frequency_input.split(",")
+        ]
 
----
+        max_frequency = max(frequencies_list)
 
-## 4. Audio Waveform Visualization
+        if sample_rate < 2 * max_frequency:
 
-Implemented visualization for:
-- real speech signals
-- music waveforms
-- noisy audio patterns
+            print("\nWARNING:")
+            print("Sample rate violates Nyquist criterion.")
 
-This provides time-domain audio analysis.
+        t, signal = generate_multi_signal(
+            frequencies=frequencies_list,
+            amplitude=amplitude,
+            duration=duration,
+            sample_rate=sample_rate
+        )
 
----
+    # ---------------------------------
+    # Chirp Signal
+    # ---------------------------------
 
-## 5. FFT Analysis on Real Audio
+    elif signal_choice == "2":
 
-The toolkit now performs FFT on actual audio recordings.
+        start_frequency = float(
+            input("Enter chirp start frequency: ")
+        )
 
-This reveals:
-- dominant frequencies
-- harmonics
-- noise distributions
-- frequency energy patterns
+        end_frequency = float(
+            input("Enter chirp end frequency: ")
+        )
 
----
+        max_frequency = max(
+            start_frequency,
+            end_frequency
+        )
 
-## 6. Audio Filtering System
+        if sample_rate < 2 * max_frequency:
 
-Implemented:
-- Low-pass filtering
-- High-pass filtering
-- Band-pass filtering
+            print("\nWARNING:")
+            print("Sample rate violates Nyquist criterion.")
 
-Applied directly on:
-# real audio recordings
+        t, signal = generate_chirp_signal(
+            start_frequency=start_frequency,
+            end_frequency=end_frequency,
+            amplitude=amplitude,
+            duration=duration,
+            sample_rate=sample_rate
+        )
 
-This allows:
-- noise reduction
-- speech isolation
-- frequency cleanup
+    else:
 
----
+        print("Invalid signal choice")
+        exit()
 
-## 7. Spectrogram Analysis
+    # ---------------------------------
+    # Add Noise
+    # ---------------------------------
 
-Implemented:
-# STFT-based spectrogram analysis
+    signal = add_noise(
+        signal,
+        noise_level=noise_level
+    )
 
-This visualizes:
-- time
-- frequency
-- intensity
 
-for real-world audio.
+# =====================================
+# REAL AUDIO MODE
+# =====================================
 
----
+elif mode_choice == "2":
 
-## 8. 2D Spectrogram Visualization
+    audio_path = input(
+        "Enter path to audio file (.wav or .mp3): "
+    )
 
-Implemented heatmap-based spectrogram visualization using:
+    signal, sample_rate = load_audio(audio_path)
 
-```python
-plt.pcolormesh()
-```
+    print("\nAudio Loaded Successfully")
 
-Displays:
-- evolving frequencies
-- speech patterns
-- audio textures
+    print(f"Sample Rate: {sample_rate} Hz")
 
----
+    print(f"Signal Length: {len(signal)} samples")
 
-## 9. 3D Spectrogram Visualization
+    t = generate_time_axis(
+        len(signal),
+        sample_rate
+    )
 
-Implemented advanced 3D DSP visualization.
 
-Axes:
-- Time
-- Frequency
-- Intensity
+else:
 
-This creates visually rich audio analysis surfaces.
+    print("Invalid mode choice")
+    exit()
 
----
 
-## 10. Chirp Signal Support
+# =====================================
+# SIGNAL VISUALIZATION
+# =====================================
 
-Phase 4 synthetic chirp signals remain fully supported.
+plot_signal(
+    t,
+    signal,
+    title="Input Signal"
+)
 
-The toolkit now supports BOTH:
-- synthetic DSP experimentation
-- real audio DSP processing
 
----
+# =====================================
+# FFT BEFORE FILTERING
+# =====================================
 
-# 📂 Updated Project Architecture
+frequencies, magnitude = compute_fft(
+    signal,
+    sample_rate
+)
 
-```text
-signal_processing_toolkit/
-│
-├── datasets/
-│
-├── dsp_env/
-│
-├── gui/
-│   ├── app.py
-│   ├── controls.py
-│   └── widgets.py
-│
-├── processing/
-│   ├── fft_analysis.py
-│   ├── filters.py
-│   ├── spectrogram.py
-│   └── utils.py
-│
-├── signals/
-│   ├── audio_loader.py
-│   ├── generator.py
-│   └── real_time_input.py
-│
-├── visualization/
-│   ├── dashboards.py
-│   ├── live_graphs.py
-│   └── plots.py
-│
-├── .gitignore
-├── main.py
-├── README.md
-└── requirements.txt
-```
+plot_frequency_spectrum(
+    frequencies,
+    magnitude,
+    title="FFT Before Filtering"
+)
 
----
 
-# 📦 New Functionalities
+# =====================================
+# FILTER SELECTION
+# =====================================
 
-## Audio Loader
+print("\nSelect Filter Type")
+print("1. Low-Pass Filter")
+print("2. High-Pass Filter")
+print("3. Band-Pass Filter")
 
-Implemented inside:
+filter_choice = input(
+    "Enter choice (1/2/3): "
+)
 
-```text
-signals/audio_loader.py
-```
 
-Supports:
-- WAV loading
-- MP3 loading
-- automatic mono conversion
-- processed audio saving
+# =====================================
+# APPLY FILTER
+# =====================================
 
----
+if filter_choice == "1":
 
-## Hybrid DSP Input System
+    cutoff = float(
+        input("Enter low-pass cutoff frequency: ")
+    )
 
-The toolkit now supports:
+    filtered_signal = low_pass_filter(
+        signal,
+        cutoff=cutoff,
+        sample_rate=sample_rate
+    )
 
-### 1. Synthetic Signal Mode
-- Multi-frequency signals
-- Chirp signals
-- Noise simulation
+    filter_title = "Low-Pass Filtered Signal"
 
-### 2. Real Audio Mode
-- Speech recordings
-- Songs
-- Audio clips
-- Real-world DSP analysis
 
----
+elif filter_choice == "2":
 
-# 📊 Current Output
+    cutoff = float(
+        input("Enter high-pass cutoff frequency: ")
+    )
 
-The toolkit now visualizes:
+    filtered_signal = high_pass_filter(
+        signal,
+        cutoff=cutoff,
+        sample_rate=sample_rate
+    )
 
-## 1. Input Signal
-Time-domain waveform.
+    filter_title = "High-Pass Filtered Signal"
 
-## 2. FFT Spectrum
-Frequency-domain analysis.
 
-## 3. Filtered Signal
-Noise-reduced reconstructed signal.
+elif filter_choice == "3":
 
-## 4. 2D Spectrogram
-Time-frequency heatmap visualization.
+    low_cutoff = float(
+        input("Enter low cutoff frequency: ")
+    )
 
-## 5. 3D Spectrogram
-3D DSP intensity surface.
+    high_cutoff = float(
+        input("Enter high cutoff frequency: ")
+    )
 
----
+    filtered_signal = band_pass_filter(
+        signal,
+        low_cutoff=low_cutoff,
+        high_cutoff=high_cutoff,
+        sample_rate=sample_rate
+    )
 
-# 🔬 Example Workflow
+    filter_title = "Band-Pass Filtered Signal"
 
-```text
-Select Input Mode
-        ↓
-Synthetic Signal OR Real Audio
-        ↓
-Load / Generate Signal
-        ↓
-Visualize Waveform
-        ↓
-Apply FFT
-        ↓
-Generate Spectrogram
-        ↓
-Apply DSP Filters
-        ↓
-Reconstruct Signal
-        ↓
-Visualize 2D/3D Spectrogram
-        ↓
-Save Processed Audio
-```
+else:
 
----
+    print("Invalid filter choice")
+    exit()
 
-# 🧠 Key Learnings
 
-After Phase 5, the project can now:
+# =====================================
+# SIGNAL COMPARISON
+# =====================================
 
-✅ Process real audio recordings  
-✅ Analyze WAV/MP3 files  
-✅ Convert stereo audio to mono  
-✅ Perform FFT on real audio  
-✅ Generate 2D spectrograms  
-✅ Generate 3D spectrograms  
-✅ Apply DSP filtering on audio  
-✅ Save processed audio output  
-✅ Support both synthetic and real DSP workflows  
+compare_signals(
+    t,
+    signal,
+    filtered_signal,
+    original_title="Original Signal",
+    filtered_title=filter_title
+)
 
----
 
-# 🏢 Real-World Applications
+# =====================================
+# FFT AFTER FILTERING
+# =====================================
 
-This phase directly connects to:
+filtered_frequencies, filtered_magnitude = compute_fft(
+    filtered_signal,
+    sample_rate
+)
 
-- Speech Recognition
-- Audio Engineering
-- Music Production
-- Noise Reduction Systems
-- Voice Processing
-- Communication Systems
-- RF Signal Analysis
-- Podcast Audio Cleanup
-- AI Audio Preprocessing
+plot_frequency_spectrum(
+    filtered_frequencies,
+    filtered_magnitude,
+    title="FFT After Filtering"
+)
 
----
 
-# 🚀 Advanced DSP Capabilities Achieved
+# =====================================
+# SPECTROGRAM
+# =====================================
 
-The DSP toolkit now supports:
+spectrogram_frequencies, spectrogram_times, spectrogram_data = compute_spectrogram(
+    filtered_signal,
+    sample_rate
+)
 
-✅ Synthetic Signal Generation  
-✅ Chirp Signal Analysis  
-✅ Real Audio Processing  
-✅ FFT Analysis  
-✅ Signal Filtering  
-✅ STFT Spectrograms  
-✅ 2D Spectrogram Visualization  
-✅ 3D Spectrogram Visualization  
-✅ Audio Reconstruction  
-✅ Processed Audio Export  
+plot_spectrogram(
+    spectrogram_frequencies,
+    spectrogram_times,
+    spectrogram_data,
+    title="2D Spectrogram"
+)
 
----
+plot_3d_spectrogram(
+    spectrogram_frequencies,
+    spectrogram_times,
+    spectrogram_data,
+    title="3D Spectrogram"
+)
 
-# 🎯 Status
 
-✅ Phase 5 Completed
+# =====================================
+# SAVE AUDIO (ONLY FOR REAL AUDIO)
+# =====================================
+
+if mode_choice == "2":
+
+    save_choice = input(
+        "\nDo you want to save filtered audio? (y/n): "
+    )
+
+    if save_choice.lower() == "y":
+
+        output_path = input(
+            "Enter output file name (example: cleaned_audio.wav): "
+        )
+
+        save_audio(
+            output_path,
+            filtered_signal,
+            sample_rate
+        )
+
+        print("\nFiltered audio saved successfully")
