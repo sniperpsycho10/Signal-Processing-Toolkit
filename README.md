@@ -177,25 +177,37 @@ The toolkit now supports BOTH:
 
 ---
 
-# 📂 Files Added / Updated
+# 📂 Updated Project Architecture
 
 ```text
 signal_processing_toolkit/
 │
-├── audio/
-│   └── audio_processor.py
+├── datasets/
+│
+├── dsp_env/
+│
+├── gui/
+│   ├── app.py
+│   ├── controls.py
+│   └── widgets.py
 │
 ├── processing/
 │   ├── fft_analysis.py
 │   ├── filters.py
-│   └── spectrogram.py
+│   ├── spectrogram.py
+│   └── utils.py
 │
 ├── signals/
-│   └── generator.py
+│   ├── audio_loader.py
+│   ├── generator.py
+│   └── real_time_input.py
 │
 ├── visualization/
+│   ├── dashboards.py
+│   ├── live_graphs.py
 │   └── plots.py
 │
+├── .gitignore
 ├── main.py
 ├── README.md
 └── requirements.txt
@@ -207,36 +219,17 @@ signal_processing_toolkit/
 
 ## Audio Loader
 
-Implemented:
+Implemented inside:
 
-```python
-load_audio()
+```text
+signals/audio_loader.py
 ```
 
 Supports:
 - WAV loading
 - MP3 loading
 - automatic mono conversion
-
----
-
-## Audio Saving
-
-Implemented:
-
-```python
-save_audio()
-```
-
-Allows exporting:
-- filtered audio
-- reconstructed signals
-
-Example:
-
-```text
-cleaned_audio.wav
-```
+- processed audio saving
 
 ---
 
@@ -281,11 +274,13 @@ Time-frequency heatmap visualization.
 # 🔬 Example Workflow
 
 ```text
-Load Audio File
+Select Input Mode
         ↓
-Convert Stereo → Mono
+Synthetic Signal OR Real Audio
         ↓
-Visualize Audio Waveform
+Load / Generate Signal
+        ↓
+Visualize Waveform
         ↓
 Apply FFT
         ↓
@@ -293,7 +288,9 @@ Generate Spectrogram
         ↓
 Apply DSP Filters
         ↓
-Reconstruct Audio
+Reconstruct Signal
+        ↓
+Visualize 2D/3D Spectrogram
         ↓
 Save Processed Audio
 ```
