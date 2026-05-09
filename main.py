@@ -1,4 +1,4 @@
-from audio.audio_processor import (
+from signals.audio_loader import (
     load_audio,
     save_audio,
     generate_time_axis
